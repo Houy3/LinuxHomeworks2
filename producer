@@ -1,0 +1,26 @@
+#!/bin/python3
+
+import os;
+
+def rand(min, max):
+    return random.randint(min, max)
+
+def randSign():
+    match rand(1,4):
+        case 1:
+            return "+"
+        case 2:
+            return "-"
+        case 3:
+            return "*"
+        case 4:
+            return "/"
+
+
+import random;
+import time;
+
+for i in range(0, rand(120, 180)):
+    print(str(rand(1, 9)) + " " + randSign() + " " + str(rand(1, 9)), flush = True) 
+    time.sleep(1)
+    

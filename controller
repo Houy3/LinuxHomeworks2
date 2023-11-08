@@ -1,0 +1,58 @@
+#!/bin/python3
+def doFork():
+    newChild = os.fork();
+    if (newChild < 0):
+        return doFork();
+    return newChild;
+
+def getStr(arr):
+    return str(arr)[2:-3]
+
+def read(pipe):
+    data = b""
+    while (True):
+        sign = os.read(pipe, 1)
+        data += sign
+        if (sign == b"\n"):
+            return data
+        if (sign == b""):
+            return -1
+
+def proceduredHandler(s, f):
+    print("Procedured: ", procedured)
+
+
+import os
+import signal
+
+p10r, p10w = os.pipe()
+p02r, p02w = os.pipe()
+p20r, p20w = os.pipe()
+
+#p1
+childPid = doFork()
+if (childPid == 0):
+    os.dup2(p10w, 1)
+    os.execl("producer", "producer")
+os.close(p10w)
+
+#p2
+childPid = doFork()
+if (childPid == 0):
+    os.dup2(p02r, 0)
+    os.dup2(p20w, 1)
+    os.execl("/usr/bin/bc", "bc")
+os.close(p02r)
+os.close(p20w)
+
+#p0
+procedured = 0
+signal.signal(10, proceduredHandler)
+while (True):
+    data = read(p10r)
+    if (data == -1):
+        exit(0)
+    os.write(p02w, data)
+    data2 = read(p20r)
+    print(getStr(data) + " = " + getStr(data2))
+    procedured += 1
